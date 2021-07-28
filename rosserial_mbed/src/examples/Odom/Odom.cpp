@@ -3,7 +3,7 @@
  */
 
 #include <ros.h>
-#include <ros/time.h>
+#include <ros/ros_time.h>
 #include <tf/tf.h>
 #include <tf/transform_broadcaster.h>
 

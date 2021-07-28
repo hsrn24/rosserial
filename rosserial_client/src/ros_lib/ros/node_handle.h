@@ -53,6 +53,7 @@ public:
   virtual int publish(int id, const Msg* msg) = 0;
   virtual int spinOnce() = 0;
   virtual bool connected() = 0;
+  virtual bool timeSynced() = 0; // to be sure the time is synchronized for timestamped messages
 };
 }
 
@@ -174,6 +175,7 @@ protected:
   int checksum_{0};
 
   bool configured_{false};
+  bool time_synced_{false};
 
   /* used for syncing the time */
   uint32_t last_sync_time{0};
@@ -223,7 +225,9 @@ public:
           return SPIN_TIMEOUT;
         }
       }
+      
       int data = hardware_.read();
+
       if (data < 0)
         break;
       checksum_ += data;
@@ -244,7 +248,7 @@ public:
         else if (hardware_.time() - c_time > (SYNC_SECONDS * 1000))
         {
           /* We have been stuck in spinOnce too long, return error */
-          configured_ = false;
+          configured_ = time_synced_ = false;
           return SPIN_TIMEOUT;
         }
       }
@@ -308,7 +312,7 @@ public:
           }
           else if (topic_ == TopicInfo::ID_TIME)
           {
-            saw_time_msg = true;
+            saw_time_msg = time_synced_ = true;
             syncTime(message_in);
           }
           else if (topic_ == TopicInfo::ID_PARAMETER_REQUEST)
@@ -318,7 +322,7 @@ public:
           }
           else if (topic_ == TopicInfo::ID_TX_STOP)
           {
-            configured_ = false;
+            configured_ = time_synced_ == false;
             tx_stop_requested = true;
           }
           else
@@ -350,6 +354,11 @@ public:
   /********************************************************************
    * Time functions
    */
+
+  virtual bool timeSynced() override
+  {
+    return time_synced_;
+  };
 
   void requestSyncTime()
   {
@@ -480,7 +489,7 @@ public:
 
     /* serialize message */
     int l = msg->serialize(message_out + 7);
-
+    
     /* setup the header */
     message_out[0] = 0xff;
     message_out[1] = PROTOCOL_VER;

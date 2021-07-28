@@ -585,7 +585,7 @@ def rosserial_client_copy_files(rospack, path):
              os.path.join('ros', 'service_client.h'),
              os.path.join('ros', 'service_server.h'),
              os.path.join('ros', 'subscriber.h'),
-             os.path.join('ros', 'time.h'),
+             os.path.join('ros', 'ros_time.h'),
              os.path.join('tf', 'tf.h'),
              os.path.join('tf', 'transform_broadcaster.h')]
     mydir = rospack.get_path("rosserial_client")

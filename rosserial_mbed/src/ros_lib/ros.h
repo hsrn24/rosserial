@@ -32,15 +32,26 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _ROS_H_
-#define _ROS_H_
+#pragma once
 
 #include "ros/node_handle.h"
 #include "MbedHardware.h"
 
 namespace ros
 {
-  typedef NodeHandle_<MbedHardware> NodeHandle;
-}
 
-#endif
+  class NodeHandle : public NodeHandle_<MbedHardware,
+                                        ROSSERIAL_MAX_SUBSCRIBERS,
+                                        ROSSERIAL_MAX_PUBLISHERS,
+                                        ROSSERIAL_INPUT_MSG_BUFFER_SIZE,
+                                        ROSSERIAL_OUTPUT_MSG_BUFFER_SIZE>
+  {
+    // TODO: implement
+  };
+
+  // typedef NodeHandle_<MbedHardware, \
+  //                     ROSSERIAL_MAX_SUBSCRIBERS, \
+  //                     ROSSERIAL_MAX_PUBLISHERS, \
+  //                     ROSSERIAL_INPUT_MSG_BUFFER_SIZE, \
+  //                     ROSSERIAL_OUTPUT_MSG_BUFFER_SIZE> NodeHandle;
+}
