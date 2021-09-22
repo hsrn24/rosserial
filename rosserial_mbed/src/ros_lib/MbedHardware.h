@@ -2,8 +2,6 @@
 
 #include "mbed.h"
 
-using namespace std::chrono;
-
 // In case mbed_lib.json is not available
 #ifndef ROSSERIAL_TX
 #   define ROSSERIAL_TX USBTX
@@ -33,6 +31,12 @@ using namespace std::chrono;
 #   define ROSSERIAL_MAX_PUBLISHERS 25
 #endif
 
+#ifndef ROSSERIAL_USE_RTOS_CLOCK
+#   define ROSSERIAL_USE_RTOS_CLOCK 0
+#endif
+
+#define ROSSERIAL_CHUNK_SIZE 32
+
 class MbedHardware
 {
 public:
@@ -46,33 +50,55 @@ public:
         : MbedHardware(ROSSERIAL_TX, ROSSERIAL_RX, ROSSERIAL_BAUDRATE)
     {}
 
+    void init(){
+#if ROSSERIAL_USE_RTOS_CLOCK == 0
+        _t.start();
+#endif
+        // _iostream.set_blocking(false);
+    }
+
     void setBaud(int baud)
     {
-        _iostream.baud(baud);
+        _iostream.set_baud(baud);
     }
 
-    int read()
+    ssize_t read(uint8_t* data, size_t length)
     {
-        return -1;
-        // if (iostream.readable())
-        // {
-        //     return iostream.getc();
-        // }
-        // else
-        // {
-        //     return -1;
-        // }
+        _iostream.set_blocking(false);
+        int res = _iostream.read(data, length);
+        _iostream.set_blocking(true);
+        return res > 0 ? res : -1;    
+        // return _iostream.read(data, length);
     };
 
-    void write(MBED_UNUSED uint8_t *data, MBED_UNUSED int length)
-    {
-        MBED_UNUSED
-        // for (int i = 0; i < length; i++)
-        //     iostream.putc(data[i]);
+    ssize_t read(){
+        return 0;
     }
 
-    uint32_t time() { return 0}
+    ssize_t write(uint8_t *data, size_t length)
+    {
+        return _iostream.write(data, length);
+    }
+
+#if ROSSERIAL_USE_RTOS_CLOCK == 0
+    Timer * getInternalTimer()
+    {
+        return &_t;
+    }
+#endif
+
+    uint32_t time()
+    {
+#if ROSSERIAL_USE_RTOS_CLOCK
+        return std::chrono::duration_cast<std::chrono::duration<uint32_t, std::milli>>(Kernel::Clock::now().time_since_epoch()).count();
+#else
+        return std::chrono::duration_cast<std::chrono::duration<uint32_t, std::milli>>(_t.elapsed_time()).count();
+#endif
+    }
 
 protected:
     BufferedSerial _iostream;
+#if ROSSERIAL_USE_RTOS_CLOCK == 0
+    Timer _t;
+#endif
 };

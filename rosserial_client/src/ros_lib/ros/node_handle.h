@@ -113,7 +113,8 @@ protected:
   uint32_t rt_time{0};
 
   /* used for computing current time */
-  uint32_t sec_offset{0}, nsec_offset{0};
+  uint32_t sec_offset{0}; 
+  uint32_t nsec_offset{0};
 
   /* Spinonce maximum work timeout */
   uint32_t spin_timeout_{0};
@@ -194,7 +195,7 @@ public:
     uint32_t c_time = hardware_.time();
     if ((c_time - last_sync_receive_time) > (SYNC_SECONDS * 2200))
     {
-      configured_ = false;
+      configured_ = time_synced_ = false;
     }
 
     /* reset if message has timed out */
@@ -383,6 +384,15 @@ public:
   Time now()
   {
     uint32_t ms = hardware_.time();
+    Time current_time;
+    current_time.sec = ms / 1000 + sec_offset;
+    current_time.nsec = (ms % 1000) * 1000000UL + nsec_offset;
+    normalizeSecNSec(current_time.sec, current_time.nsec);
+    return current_time;
+  }
+
+  Time now(uint32_t ms)
+  {
     Time current_time;
     current_time.sec = ms / 1000 + sec_offset;
     current_time.nsec = (ms % 1000) * 1000000UL + nsec_offset;
