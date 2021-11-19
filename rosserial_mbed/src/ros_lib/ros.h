@@ -97,7 +97,6 @@ namespace ros
 
                 while (num)
                 {
-
                     checksum_ += *data_ptr;
 
                     if (mode_ == MODE_MESSAGE) /* message data being recieved */
@@ -114,7 +113,7 @@ namespace ros
                             mode_++;
                             last_msg_timeout_time = c_time + SERIAL_MSG_TIMEOUT;
                         }
-                        else if (hardware_.time() - c_time > (SYNC_SECONDS * 1000))
+                        else if (hardware_.time() - c_time > (SYNC_SECONDS * 1000) && num == 1)
                         {
                             /* We have been stuck in spinOnce too long, return error */
                             configured_ = time_synced_ = false;
