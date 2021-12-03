@@ -35,7 +35,9 @@
 #   define ROSSERIAL_USE_RTOS_CLOCK 0
 #endif
 
-#define ROSSERIAL_CHUNK_SIZE 32
+#ifndef ROSSERIAL_CHUNK_SIZE
+#   define ROSSERIAL_CHUNK_SIZE 16
+#endif
 
 class MbedHardware
 {
@@ -43,7 +45,7 @@ public:
     MbedHardware(PinName tx, PinName rx, int baud)
         : _iostream(tx, rx, baud)
     {
-        MBED_VERSION_CHECK(6,12,0);
+        MBED_VERSION_CHECK(6,13,0);
     }
 
     MbedHardware()
@@ -51,10 +53,11 @@ public:
     {}
 
     void init(){
+
 #if ROSSERIAL_USE_RTOS_CLOCK == 0
         _t.start();
 #endif
-        // _iostream.set_blocking(false);
+        _iostream.set_blocking(false);
     }
 
     void setBaud(int baud)
@@ -64,11 +67,7 @@ public:
 
     ssize_t read(uint8_t* data, size_t length)
     {
-        _iostream.set_blocking(false);
-        int res = _iostream.read(data, length);
-        _iostream.set_blocking(true);
-        return res > 0 ? res : -1;    
-        // return _iostream.read(data, length);
+        return _iostream.read(data, length); 
     };
 
     ssize_t read(){
@@ -77,7 +76,10 @@ public:
 
     ssize_t write(uint8_t *data, size_t length)
     {
-        return _iostream.write(data, length);
+        _iostream.set_blocking(true);
+        ssize_t res = _iostream.write(data, length);
+        _iostream.set_blocking(false);
+        return res;
     }
 
 #if ROSSERIAL_USE_RTOS_CLOCK == 0

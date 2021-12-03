@@ -39,7 +39,6 @@
 
 namespace ros
 {
-
     class NodeHandle : public NodeHandle_<MbedHardware,
                                           ROSSERIAL_MAX_SUBSCRIBERS,
                                           ROSSERIAL_MAX_PUBLISHERS,
@@ -49,11 +48,9 @@ namespace ros
     public:
         virtual int spinOnce() override
         {
-            static uint8_t chunk_buffer[ROSSERIAL_CHUNK_SIZE];
-            static uint8_t * data_ptr;
-
             /* restart if timed out */
             uint32_t c_time = hardware_.time();
+
             if ((c_time - last_sync_receive_time) > (SYNC_SECONDS * 2200))
             {
                 configured_ = time_synced_ = false;
@@ -87,33 +84,35 @@ namespace ros
                         return SPIN_TIMEOUT;
                     }
                 }
+                
+                if(chunk_data_num <= 0)
+                {
+                    chunk_data_num = hardware_.read(chunk_buffer, ROSSERIAL_CHUNK_SIZE);
+                    chunk_data_ptr = chunk_buffer;
+                }
 
-                int num = hardware_.read(chunk_buffer, ROSSERIAL_CHUNK_SIZE);
-
-                if (num <= 0)
+                if (chunk_data_num <= 0)
                     break;
 
-                data_ptr = chunk_buffer;
-
-                while (num)
+                while (chunk_data_num)
                 {
-                    checksum_ += *data_ptr;
+                    checksum_ += *chunk_data_ptr;
 
                     if (mode_ == MODE_MESSAGE) /* message data being recieved */
                     {
-                        message_in[index_++] = *data_ptr;
+                        message_in[index_++] = *chunk_data_ptr;
                         bytes_--;
                         if (bytes_ == 0) /* is message complete? if so, checksum */
                             mode_ = MODE_MSG_CHECKSUM;
                     }
                     else if (mode_ == MODE_FIRST_FF)
                     {
-                        if (*data_ptr == 0xff)
+                        if (*chunk_data_ptr == 0xFFU)
                         {
                             mode_++;
                             last_msg_timeout_time = c_time + SERIAL_MSG_TIMEOUT;
                         }
-                        else if (hardware_.time() - c_time > (SYNC_SECONDS * 1000) && num == 1)
+                        else if (hardware_.time() - c_time > (SYNC_SECONDS * 1000))
                         {
                             /* We have been stuck in spinOnce too long, return error */
                             configured_ = time_synced_ = false;
@@ -122,7 +121,7 @@ namespace ros
                     }
                     else if (mode_ == MODE_PROTOCOL_VER)
                     {
-                        if (*data_ptr == PROTOCOL_VER)
+                        if (*chunk_data_ptr == PROTOCOL_VER)
                         {
                             mode_++;
                         }
@@ -135,14 +134,14 @@ namespace ros
                     }
                     else if (mode_ == MODE_SIZE_L) /* bottom half of message size */
                     {
-                        bytes_ = *data_ptr;
+                        bytes_ = *chunk_data_ptr;
                         index_ = 0;
                         mode_++;
-                        checksum_ = *data_ptr; /* first byte for calculating size checksum */
+                        checksum_ = *chunk_data_ptr; /* first byte for calculating size checksum */
                     }
                     else if (mode_ == MODE_SIZE_H) /* top half of message size */
                     {
-                        bytes_ += *data_ptr << 8;
+                        bytes_ += *chunk_data_ptr << 8;
                         mode_++;
                     }
                     else if (mode_ == MODE_SIZE_CHECKSUM)
@@ -154,13 +153,13 @@ namespace ros
                     }
                     else if (mode_ == MODE_TOPIC_L) /* bottom half of topic id */
                     {
-                        topic_ = *data_ptr;
+                        topic_ = *chunk_data_ptr;
                         mode_++;
-                        checksum_ = *data_ptr; /* first byte included in checksum */
+                        checksum_ = *chunk_data_ptr; /* first byte included in checksum */
                     }
                     else if (mode_ == MODE_TOPIC_H) /* top half of topic id */
                     {
-                        topic_ += *data_ptr << 8;
+                        topic_ += *chunk_data_ptr << 8;
                         mode_ = MODE_MESSAGE;
                         if (bytes_ == 0)
                             mode_ = MODE_MSG_CHECKSUM;
@@ -201,8 +200,8 @@ namespace ros
                         }
                     }
 
-                    data_ptr++;
-                    num--;
+                    chunk_data_ptr++;
+                    chunk_data_num--;
                 }
             }
 
@@ -215,5 +214,9 @@ namespace ros
 
             return saw_time_msg ? SPIN_TIME_RECV : (tx_stop_requested ? SPIN_TX_STOP_REQUESTED : SPIN_OK);
         }
+    protected:
+        uint8_t chunk_buffer[ROSSERIAL_CHUNK_SIZE]{0};
+        uint8_t * chunk_data_ptr{nullptr};
+        ssize_t chunk_data_num{0};
     };
 }

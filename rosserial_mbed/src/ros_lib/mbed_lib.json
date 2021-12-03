@@ -41,6 +41,11 @@
             "help": "Use RTOS clock instead Timer",
             "macro_name": "ROSSERIAL_USE_RTOS_CLOCK",
             "value": false
+        },
+        "chunk_size":{
+            "help": "CHUNK size",
+            "macro_name": "ROSSERIAL_CHUNK_SIZE",
+            "value": 16
         }
     }
 }
