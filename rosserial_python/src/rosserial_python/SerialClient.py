@@ -171,10 +171,8 @@ class ServiceServer:
         
         self.parent.send(self.id, data_buffer.getvalue())
         deadline = rospy.Time.now() + self.parent.service_timeout
-        while True:
-            if self.response:
-                break
-            elif rospy.Time.now() >= deadline:
+        while self.response is None:
+            if rospy.Time.now() >= deadline:
                 rospy.logerr("Service timeout!")
                 break
             time.sleep(0.001)
