@@ -1,16 +1,16 @@
 {
-    "macros": ["ROSSERIAL_VERSION=\"0.9.3\""],
+    "macros": [],
     "name": "rosserial-mbed",
     "config": {
         "tx_pin": {
             "help": "Default library Serial TX pin",
             "macro_name": "ROSSERIAL_TX",
-            "value": "USBTX"
+            "value": "CONSOLE_TX"
         },
         "rx_pin": {
             "help": "Default library Serial RX pin",
             "macro_name": "ROSSERIAL_RX",
-            "value": "USBRX"
+            "value": "CONSOLE_RX"
         },
         "baudrate": {
             "help": "Default library Serial baudrate",
@@ -42,10 +42,10 @@
             "macro_name": "ROSSERIAL_USE_RTOS_CLOCK",
             "value": false
         },
-        "chunk_size":{
-            "help": "CHUNK size",
-            "macro_name": "ROSSERIAL_CHUNK_SIZE",
-            "value": 16
+        "circular_buffor_size":{
+            "help": "Circular buffer size",
+            "macro_name": "ROSSERIAL_CIRCULAR_BUFFER_SIZE",
+            "value": 1024
         }
     }
 }

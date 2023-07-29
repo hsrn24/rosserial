@@ -30,6 +30,10 @@
 #define ROSSERIAL_OUTPUT_MSG_BUFFER_SIZE 512
 #endif
 
+#ifndef ROSSERIAL_CIRCULAR_BUFFER_SIZE
+#define ROSSERIAL_CIRCULAR_BUFFER_SIZE 1024
+#endif
+
 #ifndef ROSSERIAL_MAX_SUBSCRIBERS
 #define ROSSERIAL_MAX_SUBSCRIBERS 25
 #endif
@@ -40,10 +44,6 @@
 
 #ifndef ROSSERIAL_USE_RTOS_CLOCK
 #define ROSSERIAL_USE_RTOS_CLOCK 0
-#endif
-
-#ifndef ROSSERIAL_CHUNK_SIZE
-#define ROSSERIAL_CHUNK_SIZE 16
 #endif
 
 class MbedHardware : private mbed::SerialBase, private mbed::NonCopyable<MbedHardware> {
@@ -68,8 +68,8 @@ private:
     bool _tx_enabled     = true;
     bool _rx_enabled     = true;
     bool _blocking       = true;
-    mbed::CircularBuffer<char, 1024> _rxbuf;
-    mbed::CircularBuffer<char, 1024> _txbuf;
+    mbed::CircularBuffer<char, ROSSERIAL_CIRCULAR_BUFFER_SIZE> _rxbuf;
+    mbed::CircularBuffer<char, ROSSERIAL_CIRCULAR_BUFFER_SIZE> _txbuf;
     PlatformMutex _mutex;
 
 #if ROSSERIAL_USE_RTOS_CLOCK == 0
