@@ -6,7 +6,7 @@
 
 #include "mbed.h"
 #include <ros.h>
-#include <ros/time.h>
+#include <ros/ros_time.h>
 #include <sensor_msgs/Range.h>
 
 ros::NodeHandle  nh;

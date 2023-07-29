@@ -57,6 +57,8 @@ public:
     this->cb_ = cb;
   }
 
+  virtual ~ServiceServer(){}
+
   // these refer to the subscriber
   virtual void callback(unsigned char *data) override
   {
@@ -97,6 +99,8 @@ public:
     this->topic_ = topic_name;
     this->cb_ = cb;
   }
+
+  virtual ~ServiceServer(){}
 
   // these refer to the subscriber
   virtual void callback(unsigned char *data) override

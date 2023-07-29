@@ -1,0 +1,51 @@
+{
+    "macros": ["ROSSERIAL_VERSION=\"0.9.3\""],
+    "name": "rosserial-mbed",
+    "config": {
+        "tx_pin": {
+            "help": "Default library Serial TX pin",
+            "macro_name": "ROSSERIAL_TX",
+            "value": "USBTX"
+        },
+        "rx_pin": {
+            "help": "Default library Serial RX pin",
+            "macro_name": "ROSSERIAL_RX",
+            "value": "USBRX"
+        },
+        "baudrate": {
+            "help": "Default library Serial baudrate",
+            "macro_name": "ROSSERIAL_BAUDRATE",
+            "value": 115200
+        },
+        "in_msg_buffer_size": {
+            "help": "Input msg buffer size",
+            "macro_name": "ROSSERIAL_INPUT_MSG_BUFFER_SIZE",
+            "value": 512
+        },
+        "out_msg_buffer_size": {
+            "help": "Output msg buffer size",
+            "macro_name": "ROSSERIAL_OUTPUT_MSG_BUFFER_SIZE",
+            "value": 512
+        },
+        "max_subscribers": {
+            "help": "Max ros subscribers",
+            "macro_name": "ROSSERIAL_MAX_SUBSCRIBERS",
+            "value": 25
+        },
+        "max_publishers": {
+            "help": "Max ros publishers",
+            "macro_name": "ROSSERIAL_MAX_PUBLISHERS",
+            "value": 25
+        },
+        "use_rtos_clock": {
+            "help": "Use RTOS clock instead Timer",
+            "macro_name": "ROSSERIAL_USE_RTOS_CLOCK",
+            "value": false
+        },
+        "chunk_size":{
+            "help": "CHUNK size",
+            "macro_name": "ROSSERIAL_CHUNK_SIZE",
+            "value": 16
+        }
+    }
+}

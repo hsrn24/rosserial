@@ -48,21 +48,41 @@ public:
   Publisher(const char * topic_name, Msg * msg, int endpoint = rosserial_msgs::TopicInfo::ID_PUBLISHER) :
     topic_(topic_name),
     msg_(msg),
+    ready_(false),
     endpoint_(endpoint) {};
+  
+  virtual ~Publisher(){}
 
   int publish(const Msg * msg)
   {
     return nh_->publish(id_, msg);
   };
+
+  int publish()
+  {
+    if(ready_)
+    {
+      ready_ = false;
+      return nh_->publish(id_, msg_);
+    }
+    else return 0;
+  }
+
   int getEndpointType()
   {
     return endpoint_;
   }
 
+  void markReady() {ready_ = true;}
+  
+  bool isReady() {return ready_;}
+
   const char * topic_;
   Msg *msg_;
   // id_ and no_ are set by NodeHandle when we advertise
   int id_;
+  bool ready_;
+
   NodeHandleBase_* nh_;
 
 private:

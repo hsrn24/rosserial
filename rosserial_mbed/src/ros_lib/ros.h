@@ -1,4 +1,4 @@
-/* 
+/*
  * Software License Agreement (BSD License)
  *
  * Copyright (c) 2011, Willow Garage, Inc.
@@ -40,7 +40,12 @@
 
 namespace ros
 {
-  typedef NodeHandle_<MbedHardware> NodeHandle;
+    typedef NodeHandle_<MbedHardware,
+                        ROSSERIAL_MAX_SUBSCRIBERS,
+                        ROSSERIAL_MAX_PUBLISHERS,
+                        ROSSERIAL_INPUT_MSG_BUFFER_SIZE,
+                        ROSSERIAL_OUTPUT_MSG_BUFFER_SIZE>
+        NodeHandle;
 }
 
 #endif

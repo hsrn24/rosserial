@@ -54,6 +54,8 @@ public:
     this->waiting = true;
   }
 
+  virtual ~ServiceClient(){}
+
   virtual void call(const MReq & request, MRes & response) override
   {
     if (!pub.nh_->connected()) return;

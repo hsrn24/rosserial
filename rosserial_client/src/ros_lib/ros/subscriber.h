@@ -70,6 +70,8 @@ public:
   {
     topic_ = topic_name;
   };
+  
+  virtual ~Subscriber(){}
 
   virtual void callback(unsigned char* data) override
   {
@@ -110,6 +112,8 @@ public:
   {
     topic_ = topic_name;
   };
+
+  virtual ~Subscriber(){}
 
   virtual void callback(unsigned char* data) override
   {

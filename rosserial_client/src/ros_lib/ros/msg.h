@@ -46,6 +46,7 @@ namespace ros
 class Msg
 {
 public:
+  virtual ~Msg(){}
   virtual int serialize(unsigned char *outbuffer) const = 0;
   virtual int deserialize(unsigned char *data) = 0;
   virtual const char * getType() = 0;
