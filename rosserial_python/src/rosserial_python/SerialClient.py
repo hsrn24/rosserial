@@ -169,8 +169,12 @@ class ServiceServer:
         req.serialize(data_buffer)
         self.response = None
         self.parent.send(self.id, data_buffer.getvalue())
+        deadline = rospy.Time.now() + self.parent.service_timeout
         while self.response is None:
-            pass
+            if rospy.Time.now() >= deadline:
+                rospy.logerr("Service timeout!")
+                break
+            rospy.sleep(0.002)
         return self.response
 
     def handlePacket(self, data):
@@ -328,7 +332,7 @@ class SerialClient(object):
     protocol_ver2 = b'\xfe'
     protocol_ver = protocol_ver2
 
-    def __init__(self, port=None, baud=57600, timeout=5.0, fix_pyserial_for_test=False):
+    def __init__(self, port=None, baud=57600, timeout=5.0, fix_pyserial_for_test=False, service_timeout=5):
         """ Initialize node, connect to bus, attempt to negotiate topics. """
 
         self.read_lock = threading.RLock()
@@ -343,6 +347,7 @@ class SerialClient(object):
         self.last_read = rospy.Time(0)
         self.last_write = rospy.Time(0)
         self.timeout = timeout
+        self.service_timeout = rospy.Duration(secs=service_timeout)
         self.synced = False
         self.fix_pyserial_for_test = fix_pyserial_for_test
 
