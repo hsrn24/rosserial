@@ -8,6 +8,7 @@
 #include "platform/CircularBuffer.h"
 #include "platform/NonCopyable.h"
 #include "drivers/SerialBase.h"
+#include "drivers/Timer.h"
 
 // In case mbed_lib.json is not available
 #ifndef ROSSERIAL_TX
@@ -73,7 +74,7 @@ private:
     PlatformMutex _mutex;
 
 #if ROSSERIAL_USE_RTOS_CLOCK == 0
-    Timer _t;
+    mbed::Timer _t;
 #endif
 
 private:
