@@ -109,9 +109,13 @@ uint32_t MbedHardware::time()
 #endif
 }
 
+#if defined(ROSSERIAL_NO_LOCK)
+void MbedHardware::api_lock(void) { }
+void MbedHardware::api_unlock(void) { }
+#else
 void MbedHardware::api_lock(void) { _mutex.lock(); }
-
 void MbedHardware::api_unlock(void) { _mutex.unlock(); }
+#endif
 
 /* These are all called from critical section
  * Attatch IRQ routines to the serial device.
